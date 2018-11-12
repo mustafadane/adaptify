@@ -6,6 +6,37 @@
  * @flow
  */
 
+import React, {Component} from 'react'
+import { StackNavigator } from 'react-navigation'
+
+import Login from './screens/Login'
+import Home from './screens/Home'
+
+
+const App = StackNavigator({
+  initial: {screen:Login},
+  home: {screen:Home},
+  },
+  {
+    headerMode: 'none',
+  }
+)
+
+// export default (<Provider store={store}><App /></Provider>)
+export default App
+
+
+
+
+
+
+
+
+
+
+
+/*
+
 import React, {Component} from 'react';
 import { View, Platform, StyleSheet } from 'react-native'
 // import {Platform, StyleSheet, Text, View, Alert, TouchableHighlight, Button} from 'react-native';
@@ -153,7 +184,7 @@ export default class App extends Component<Props> {
         <Button onPress={this.handlePlay} title='Play' />
         {/* <Button onPress={async ()=> {
           await Spotify.setPlaying({playing: true})}}
-          title='Play' /> */}
+          title='Play' /> }
 
       </View>
     );
@@ -178,3 +209,5 @@ const styles = StyleSheet.create({
     marginBottom: 5,
   },
 });
+
+*/
