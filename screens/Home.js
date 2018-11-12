@@ -5,6 +5,7 @@ import { connect } from 'react-redux'
 import { Alert } from 'react-native'
 import {setMe, setPlaylists} from '../store'
 import { StackActions, NavigationActions } from 'react-navigation';
+import axios from 'axios'
 
 
 export class Home extends Component {
@@ -19,7 +20,8 @@ export class Home extends Component {
             skipData: {},
             isPlaying: false,
             currentlyPlaying: 0,
-            selectedPlaylist: 0
+            selectedPlaylist: 0,
+            playlistId: 0
         }
     }
 
@@ -34,7 +36,7 @@ export class Home extends Component {
 
     handleClick = async (playlistId, playlistUri) => {
         const tracks = await Spotify.getPlaylistTracks(playlistId)
-        this.setState({tracks: tracks.items, playlistView: true, selectedPlaylist: playlistUri})
+        this.setState({tracks: tracks.items, playlistView: true, selectedPlaylist: playlistUri, playlistId})
     }
 
     handleLogout = async () => {
@@ -83,11 +85,23 @@ export class Home extends Component {
                 skipData: {...this.state.skipData, [data.currentTrack.uri]: 1 }
             })
         }
+        if(this.state.skipData[data.currentTrack.uri] >= 2){
+            let {accessToken} = Spotify.getAuth()
+            let ax = axios.create({
+                headers: {Authorization: 'Bearer ' + accessToken},
+              });
+            const res = await ax({
+                method: 'delete',
+                url: `https://api.spotify.com/v1/playlists/${this.state.playlistId}/tracks`,
+                data: {
+                    tracks: [{uri: data.currentTrack.uri}]
+                }
+            })
+        }
         await Spotify.skipToNext()
     }
     handlePrevios = async () => {
         await Spotify.skipToPrevious()
-
     }
 
     render() {
@@ -101,7 +115,7 @@ export class Home extends Component {
           </Left>
           <Body>
             <Title>Home</Title>
-            <Subtitle>Welcome, {this.state.me.display_name}</Subtitle>
+            <Subtitle>Hey, {this.state.me.display_name}</Subtitle>
           </Body>
           <Right />
         </Header>
@@ -126,7 +140,8 @@ export class Home extends Component {
                                 <Thumbnail square source={{uri: track.track.album.images[0].url}}></Thumbnail>
                             </Left>
                             <Body>
-                                 <Text>{track.track.uri}</Text>
+                                 <Text>{track.track.name}</Text>
+                                 <Text note>{track.track.album.artists[0].name}</Text>
                             </Body>
                             <Right>
                                 <Text note>{ Math.floor(track.track.duration_ms/1000/60)}:{Math.floor(track.track.duration_ms/1000%60) }</Text>
@@ -136,6 +151,7 @@ export class Home extends Component {
                     })}
 
                 </List>
+
                 </Container>
 
                     :

@@ -10,8 +10,10 @@ import {
 	StyleSheet,
 	Text,
 	TouchableHighlight,
-	View
+    View,
+    Image
 } from 'react-native';
+import {H1} from 'native-base'
 
 class Login extends Component {
     constructor(){
@@ -27,7 +29,7 @@ class Login extends Component {
             "clientID": "178d7b96e8be4134ab1747a83f21ef54",
             "sessionUserDefaultsKey":"SpotifySession",
             "redirectURL":"https://adaptify.herokuapp.com/callback",
-            "scopes":["user-read-private", "playlist-read", "playlist-read-private", "streaming"],
+            "scopes":["user-read-private", "playlist-read", "playlist-read-private", "streaming", "playlist-modify-public", "playlist-modify-private"],
             "tokenSwapURL":"https://adaptify.herokuapp.com/swap",
             "tokenRefreshURL":"https://adaptify.herokuapp.com/refresh",
             "android": {
@@ -106,6 +108,7 @@ class Login extends Component {
 		{
 			return (
 				<View style={styles.container}>
+                    <Image source={require('../logo.png')} />
 					<Text style={styles.greeting}>
 						Hey! You! Log into your spotify
 					</Text>
