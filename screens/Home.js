@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Separator, List, ListItem, Thumbnail } from 'native-base';
+import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Separator, List, ListItem, Thumbnail, Subtitle, Picker } from 'native-base';
 import Spotify from 'rn-spotify-sdk'
 import { connect } from 'react-redux'
 import { Alert } from 'react-native'
@@ -14,7 +14,10 @@ export class Home extends Component {
         this.state = {
             me: {},
             playlists: [],
-            tracks: []
+            tracks: [],
+            playlistView: false,
+            skipData: {},
+            isPlaying: false
         }
     }
 
@@ -29,7 +32,7 @@ export class Home extends Component {
 
     handleClick = async (playlistId) => {
         const tracks = await Spotify.getPlaylistTracks(playlistId)
-        this.setState({tracks: tracks.items})
+        this.setState({tracks: tracks.items, playlistView: true})
     }
 
     handleLogout = async () => {
@@ -45,6 +48,17 @@ export class Home extends Component {
 		});
 		this.props.navigation.dispatch(navAction);
     }
+    handleBack = () => {
+        this.setState({
+            tracks: [],
+            playlistView: false
+        })
+    }
+    handlePlay = () => {
+        this.setState({
+            isPlaying: !this.state.isPlaying
+        })
+    }
 
     render() {
         return (
@@ -57,22 +71,22 @@ export class Home extends Component {
           </Left>
           <Body>
             <Title>Home</Title>
+            <Subtitle>Welcome, {this.state.me.display_name}</Subtitle>
           </Body>
           <Right />
         </Header>
         <Content>
-            <Text>
-                Welcome, {this.state.me.display_name}
-            </Text>
-            {this.state.tracks.length
+            {this.state.playlistView
 
                 ?
                 <Container>
-                <Button iconLeft full>
+                <Button iconLeft full onPress={this.handleBack}>
                     <Icon name='arrow-back' />
-                    <Text>Playlists</Text>
+                    <Text>Go Back To Playlists</Text>
                 </Button>
                 <List>
+
+                    {!this.state.tracks.length && <Text>No song in this playlist</Text>}
                     {this.state.tracks.map(track => {
                         return (
                             <ListItem thumbnail key={track.track.name}>
@@ -91,22 +105,12 @@ export class Home extends Component {
 
                     :
                     <Container>
-                    <Text>
-                    Your Playlists:
-                  </Text>
+
                   <List>
-                  <ListItem avatar>
-                      <Left>
-                        <Thumbnail  />
-                      </Left>
-                      <Body>
-                        <Text>Kumar Pratik</Text>
-                        <Text note>Doing what you like will always keep you happy . .</Text>
-                      </Body>
-                      <Right>
-                        <Text note>3:43 pm</Text>
-                      </Right>
+                    <ListItem itemDivider>
+                        <Text>Your Playlists:</Text>
                     </ListItem>
+
                     {this.state.playlists.map(playlist=>{
                         return(
                             <ListItem key={playlist.id} bordered onPress={()=>this.handleClick(playlist.id)}>
@@ -123,6 +127,7 @@ export class Home extends Component {
 
 
 
+
           <Button onPress={this.handleLogout}>
               <Text>
                   LOGOUT
@@ -132,16 +137,15 @@ export class Home extends Component {
         <Footer>
         <FooterTab>
             <Button vertical>
-              <Icon name="home" />
-              <Text>Home</Text>
+              <Icon name="skip-backward" />
+
+            </Button>
+            <Button vertical onPress={this.handlePlay}>
+              <Icon name={this.state.isPlaying ? "pause" : "play"} />
+
             </Button>
             <Button vertical>
-              <Icon name="refresh" />
-              <Text>History</Text>
-            </Button>
-            <Button vertical active>
-              <Icon active name="settings" />
-              <Text>Settings</Text>
+              <Icon  name="skip-forward" />
             </Button>
           </FooterTab>
         </Footer>
