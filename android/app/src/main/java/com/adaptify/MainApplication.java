@@ -3,6 +3,8 @@ package com.adaptify;
 import android.app.Application;
 
 import com.facebook.react.ReactApplication;
+//import com.reactnative.photoview.PhotoViewPackage;
+//import com.BV.LinearGradient.LinearGradientPackage;
 import com.lufinkey.react.spotify.RNSpotifyPackage;
 import com.lufinkey.react.eventemitter.RNEventEmitterPackage;
 import com.facebook.react.ReactNativeHost;
