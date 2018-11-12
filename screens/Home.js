@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Container, Header, Title, Content, Footer, FooterTab, Button, Left, Right, Body, Icon, Text, Separator, List, ListItem, Thumbnail, Subtitle, Picker } from 'native-base';
 import Spotify from 'rn-spotify-sdk'
 import { connect } from 'react-redux'
-import { Alert } from 'react-native'
+import { Alert, StyleSheet } from 'react-native'
 import {setMe, setPlaylists} from '../store'
 import { StackActions, NavigationActions } from 'react-navigation';
 import axios from 'axios'
@@ -21,7 +21,8 @@ export class Home extends Component {
             isPlaying: false,
             currentlyPlaying: 0,
             selectedPlaylist: 0,
-            playlistId: 0
+            playlistId: 0,
+            activeIndex: -1
         }
     }
 
@@ -36,7 +37,7 @@ export class Home extends Component {
 
     handleClick = async (playlistId, playlistUri) => {
         const tracks = await Spotify.getPlaylistTracks(playlistId)
-        this.setState({tracks: tracks.items, playlistView: true, selectedPlaylist: playlistUri, playlistId})
+        this.setState({tracks: tracks.items, playlistView: true, selectedPlaylist: playlistUri, playlistId, })
     }
 
     handleLogout = async () => {
@@ -66,11 +67,12 @@ export class Home extends Component {
         })
     }
 
-    handleStart = async (uri, position, trackId) => {
+    handleStart = async (uri, position, trackId, activeIndex) => {
         await Spotify.playURI(uri, position, 0)
         this.setState({
             isPlaying: true,
-            currentlyPlaying: trackId
+            currentlyPlaying: trackId,
+            activeIndex
         })
     }
     handleNext =  async () => {
@@ -78,11 +80,13 @@ export class Home extends Component {
         if(data.currentTrack.uri in this.state.skipData){
             const num = this.state.skipData[data.currentTrack.uri]
             this.setState({
-                skipData: {...this.state.skipData, [data.currentTrack.uri]: num + 1}
+                skipData: {...this.state.skipData, [data.currentTrack.uri]: num + 1},
+                activeIndex: this.state.activeIndex + 1
             })
         } else {
             this.setState({
-                skipData: {...this.state.skipData, [data.currentTrack.uri]: 1 }
+                skipData: {...this.state.skipData, [data.currentTrack.uri]: 1 },
+                activeIndex: this.state.activeIndex + 1
             })
         }
         if(this.state.skipData[data.currentTrack.uri] >= 2){
@@ -102,6 +106,9 @@ export class Home extends Component {
     }
     handlePrevios = async () => {
         await Spotify.skipToPrevious()
+        this.setState({
+            activeIndex: this.state.activeIndex -1
+        })
     }
 
     render() {
@@ -133,8 +140,8 @@ export class Home extends Component {
                     {!this.state.tracks.length && <Text>No song in this playlist</Text>}
                     {this.state.tracks.map((track, idx) => {
                         return (
-                            <ListItem thumbnail key={track.track.name}
-                                onPress={() => this.handleStart(this.state.selectedPlaylist, idx, track.track.id)}
+                            <ListItem style={idx === this.state.activeIndex && styles.active } thumbnail key={track.track.name}
+                                onPress={() => this.handleStart(this.state.selectedPlaylist, idx, track.track.id, idx)}
                             >
                             <Left>
                                 <Thumbnail square source={{uri: track.track.album.images[0].url}}></Thumbnail>
@@ -207,6 +214,12 @@ export class Home extends Component {
 
 const mapState = state => ({
     playlists: state.playlists
+})
+
+const styles = StyleSheet.flatten({
+    active: {
+        backgroundColor: 'lightgray'
+    }
 })
 
 // export default connect(mapState)(Home)
