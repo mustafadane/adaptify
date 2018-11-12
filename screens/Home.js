@@ -67,9 +67,27 @@ export class Home extends Component {
     handleStart = async (uri, position, trackId) => {
         await Spotify.playURI(uri, position, 0)
         this.setState({
-            isPlaying: !this.state.isPlaying,
+            isPlaying: true,
             currentlyPlaying: trackId
         })
+    }
+    handleNext =  async () => {
+        const data =  Spotify.getPlaybackMetadata()
+        if(data.currentTrack.uri in this.state.skipData){
+            const num = this.state.skipData[data.currentTrack.uri]
+            this.setState({
+                skipData: {...this.state.skipData, [data.currentTrack.uri]: num + 1}
+            })
+        } else {
+            this.setState({
+                skipData: {...this.state.skipData, [data.currentTrack.uri]: 1 }
+            })
+        }
+        await Spotify.skipToNext()
+    }
+    handlePrevios = async () => {
+        await Spotify.skipToPrevious()
+
     }
 
     render() {
@@ -108,7 +126,7 @@ export class Home extends Component {
                                 <Thumbnail square source={{uri: track.track.album.images[0].url}}></Thumbnail>
                             </Left>
                             <Body>
-                                 <Text>{track.track.name}</Text>
+                                 <Text>{track.track.uri}</Text>
                             </Body>
                             <Right>
                                 <Text note>{ Math.floor(track.track.duration_ms/1000/60)}:{Math.floor(track.track.duration_ms/1000%60) }</Text>
@@ -153,7 +171,7 @@ export class Home extends Component {
         </Content>
         <Footer>
         <FooterTab>
-            <Button vertical>
+            <Button vertical onPress={this.handlePrevios}>
               <Icon name="skip-backward" />
 
             </Button>
@@ -161,7 +179,7 @@ export class Home extends Component {
               <Icon name={this.state.isPlaying ? "pause" : "play"} />
 
             </Button>
-            <Button vertical>
+            <Button vertical onPress={this.handleNext}>
               <Icon  name="skip-forward" />
             </Button>
           </FooterTab>
