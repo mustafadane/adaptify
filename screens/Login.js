@@ -61,14 +61,11 @@ class Login extends Component {
 			// handle logged in
 			if(Spotify.isLoggedIn())
 			{
-                const profile = await Spotify.getMe()
-            setMe(profile)
-            const playlists = await Spotify.getMyPlaylists()
-            setPlaylists(playlists)
+
 				this.goToHome();
 			}
 		}
-      }
+    }
 
     goToHome = () => {
         const navAction = StackActions.reset({
@@ -80,16 +77,14 @@ class Login extends Component {
 		this.props.navigation.dispatch(navAction);
     }
 
-    async handleLogin(){
+    handleLogin = async () => {
         const loggedIn = await Spotify.login()
         try {
           if(loggedIn){
-            const profile = await Spotify.getMe()
-            setMe(profile)
-            const playlists = await Spotify.getMyPlaylists()
-            setPlaylists(playlists)
+
             this.goToHome()
           }
+
         } catch (err){
           Alert.alert("Error", err.message)
         }
@@ -125,7 +120,9 @@ class Login extends Component {
 }
 
 const mapState = state => ({
-    isLoggedIn: !!state.me.display_name
+    isLoggedIn: !!state.me.display_name,
+    playlists: state.playlists,
+    me: state.me
 })
 
 
@@ -169,4 +166,5 @@ const styles = StyleSheet.create({
 	},
 });
 
-export default connect(mapState)(Login)
+// export default connect(mapState)(Login)
+export default Login

@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware } from 'redux';
-import { ActionSheet } from 'native-base';
 
 //action types
 
