@@ -17,7 +17,9 @@ export class Home extends Component {
             tracks: [],
             playlistView: false,
             skipData: {},
-            isPlaying: false
+            isPlaying: false,
+            currentlyPlaying: 0,
+            selectedPlaylist: 0
         }
     }
 
@@ -30,9 +32,9 @@ export class Home extends Component {
         // Alert.alert(playlists.items[0].name)
     }
 
-    handleClick = async (playlistId) => {
+    handleClick = async (playlistId, playlistUri) => {
         const tracks = await Spotify.getPlaylistTracks(playlistId)
-        this.setState({tracks: tracks.items, playlistView: true})
+        this.setState({tracks: tracks.items, playlistView: true, selectedPlaylist: playlistUri})
     }
 
     handleLogout = async () => {
@@ -54,9 +56,19 @@ export class Home extends Component {
             playlistView: false
         })
     }
-    handlePlay = () => {
+    handlePlay = async () => {
+        // await Spotify.playURI(uri, position, 0)
+        await Spotify.setPlaying(!this.state.isPlaying)
         this.setState({
             isPlaying: !this.state.isPlaying
+        })
+    }
+
+    handleStart = async (uri, position, trackId) => {
+        await Spotify.playURI(uri, position, 0)
+        this.setState({
+            isPlaying: !this.state.isPlaying,
+            currentlyPlaying: trackId
         })
     }
 
@@ -87,15 +99,20 @@ export class Home extends Component {
                 <List>
 
                     {!this.state.tracks.length && <Text>No song in this playlist</Text>}
-                    {this.state.tracks.map(track => {
+                    {this.state.tracks.map((track, idx) => {
                         return (
-                            <ListItem thumbnail key={track.track.name}>
+                            <ListItem thumbnail key={track.track.name}
+                                onPress={() => this.handleStart(this.state.selectedPlaylist, idx, track.track.id)}
+                            >
                             <Left>
                                 <Thumbnail square source={{uri: track.track.album.images[0].url}}></Thumbnail>
                             </Left>
                             <Body>
                                  <Text>{track.track.name}</Text>
                             </Body>
+                            <Right>
+                                <Text note>{ Math.floor(track.track.duration_ms/1000/60)}:{Math.floor(track.track.duration_ms/1000%60) }</Text>
+                            </Right>
                             </ListItem>
                         )
                     })}
@@ -113,7 +130,7 @@ export class Home extends Component {
 
                     {this.state.playlists.map(playlist=>{
                         return(
-                            <ListItem key={playlist.id} bordered onPress={()=>this.handleClick(playlist.id)}>
+                            <ListItem key={playlist.id} bordered onPress={()=>this.handleClick(playlist.id, playlist.uri)}>
                                     <Text>{playlist.name}</Text>
                             </ListItem>
                         )
