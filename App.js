@@ -66,8 +66,8 @@ export default class App extends Component<Props> {
       try {
         if(loggedIn){
           const profile = await Spotify.getMe()
-          // const playlists = await Spotify.sendRequest("/v1/me/playlists", "GET", {limit:1, offset:0}, true)
-          this.setState({loggedIn: true, profile})
+          const playlists = await Spotify.getMyPlaylists()
+          this.setState({loggedIn: true, profile, playlists: playlists.items})
         }
       } catch (err){
         Alert.alert("Error", err.message)
@@ -97,7 +97,10 @@ export default class App extends Component<Props> {
         <Text style={styles.instructions}>Is loggedIn: {this.state.loggedIn.toString()}</Text>
         <Text style={styles.instructions}>Me: {Object.keys(this.state.profile)}</Text>
         <Text style={styles.instructions}>Me: {this.state.profile.display_name}</Text>
-        <Text style={styles.instructions}>Playlists: {this.state.playlists}</Text>
+        <Text style={styles.instructions}>Playlists: </Text>
+        {this.state.playlists.map(playlist => (
+          <Text key={playlist.name}>{playlist.name}</Text>
+        ))}
         <TouchableHighlight onPress={this.handleLogin}>
 						<Text>Log into Spotify</Text>
 					</TouchableHighlight>
