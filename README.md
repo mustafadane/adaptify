@@ -3,5 +3,6 @@ An Android app that modifies your Spotify playlist based on how many times you s
 
 ### Presentation
 
-[![Adaptify](https://img.youtube.com/vi/m8p8oS78d6M/0.jpg)](https://www.youtube.com/watch?v=m8p8oS78d6M){:target="_blank"}
-
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=m8p8oS78d6M
+" target="_blank"><img src="http://img.youtube.com/vi/m8p8oS78d6M/0.jpg" 
+alt="Adaptify" width="240" height="180" border="10" /></a>
